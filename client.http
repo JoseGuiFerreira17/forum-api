@@ -1,4 +1,5 @@
 @base_url = http://localhost:3333
+@authToken = {{authenticate.response.body.access_token}}
 
 # @name create_account
 POST {{base_url}}/accounts
@@ -23,3 +24,12 @@ Content-Type: application/json
 
 ###
 
+# @name create_question
+POST {{base_url}}/questions
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "title": "How to create a new account?",
+    "content": "I'm trying to create a new account"
+}
