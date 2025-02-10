@@ -33,3 +33,10 @@ Authorization: Bearer {{authToken}}
     "title": "How to create a new account?",
     "content": "I'm trying to create a new account"
 }
+
+###
+
+# @name create_question
+GET  {{base_url}}/questions
+Content-Type: application/json
+Authorization: Bearer {{authToken}}

@@ -5,9 +5,9 @@ import { fromZodError } from 'zod-validation-error';
 export class ZodValidationPipe implements PipeTransform {
   constructor(private schema: ZodSchema) {}
 
-  transform(value: unknown) {
+  transform(value: unknown): unknown {
     try {
-      this.schema.parse(value);
+      return this.schema.parse(value);
     } catch (error) {
       if (error instanceof ZodError) {
         throw new BadRequestException({
