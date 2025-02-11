@@ -39,15 +39,42 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
   }
 
   async findManyRecent({ page }: PaginationParams) {
-    throw new Error('Method not implemented.');
+    const questions = await this.prisma.question.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 20,
+      skip: (page - 1) * 20,
+    });
+
+    return questions.map((question) =>
+      PrismaQuestionsMapper.toDomain(question),
+    );
   }
+
   async delete(question: Question) {
-    throw new Error('Method not implemented.');
+    await this.prisma.question.delete({
+      where: {
+        id: question.id.toString(),
+      },
+    });
   }
+
   async update(question: Question) {
-    throw new Error('Method not implemented.');
+    const data = PrismaQuestionsMapper.toPersistence(question);
+
+    await this.prisma.question.update({
+      where: {
+        id: data.id,
+      },
+      data,
+    });
   }
   async create(question: Question) {
-    throw new Error('Method not implemented.');
+    const data = PrismaQuestionsMapper.toPersistence(question);
+
+    await this.prisma.question.create({
+      data,
+    });
   }
 }
