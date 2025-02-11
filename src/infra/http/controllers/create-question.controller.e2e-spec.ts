@@ -1,12 +1,12 @@
-import { AppModule } from '@/app.module';
-import { PrismaService } from '@/prisma/prisma.service';
+import { AppModule } from '@/infra/app.module';
+import { PrismaService } from '@/infra/prisma/prisma.service';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { hash } from 'bcryptjs';
 import request from 'supertest';
 
-describe('Fetch Recent Questions Controller (e2e)', () => {
+describe('Create Question Controller (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let jwt: JwtService;
@@ -24,7 +24,7 @@ describe('Fetch Recent Questions Controller (e2e)', () => {
     await app.init();
   });
 
-  test('[GET] /questions', async () => {
+  test('[POST] /questions', async () => {
     const user = await prisma.user.create({
       data: {
         name: 'John Doe',
@@ -35,29 +35,21 @@ describe('Fetch Recent Questions Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id });
 
-    await prisma.question.createMany({
-      data: [
-        {
-          title: 'Question 1',
-          slug: 'question-1',
-          content: 'Content 1',
-          authorId: user.id,
-        },
-        {
-          title: 'Question 2',
-          slug: 'question-2',
-          content: 'Content 2',
-          authorId: user.id,
-        },
-      ],
+    const responde = await request(app.getHttpServer())
+      .post('/questions')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        title: 'How to create a question?',
+        content: 'I want to know how to create a question.',
+      });
+
+    const question = await prisma.question.findFirst({
+      where: {
+        title: 'How to create a question?',
+      },
     });
 
-    const response = await request(app.getHttpServer())
-      .get('/questions')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send();
-
-    expect(response.statusCode).toBe(200);
-    expect(response.body.questions).toHaveLength(2);
+    expect(responde.statusCode).toBe(201);
+    expect(question).toBeTruthy();
   });
 });
