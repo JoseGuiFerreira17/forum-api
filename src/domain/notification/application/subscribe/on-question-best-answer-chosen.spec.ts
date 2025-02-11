@@ -1,11 +1,7 @@
 import { InMemoryAnswerAttachmentsRepository } from 'test/repositories/in-memory-answer-attachments-repository';
 import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-repository';
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository';
-import {
-  SendNotificationUseCase,
-  SendNotificationUseCaseRequest,
-  SendNotificationUseCaseResponse,
-} from '@/domain/notification/application/use-cases/send-notification';
+import { SendNotificationUseCase } from '@/domain/notification/application/use-cases/send-notification';
 import { InMemoryQuestionAttachmentsRepository } from 'test/repositories/in-memory-question-attachments-repository';
 import { InMemoryNotificationsRepository } from 'test/repositories/in-memory-notifications-repository';
 import { makeAnswer } from 'test/factories/make-answer';
@@ -21,10 +17,7 @@ let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
 let inMemoryNoficationsRepository: InMemoryNotificationsRepository;
 let sendNotificationUseCase: SendNotificationUseCase;
 
-let sendNotificationSpy: MockInstance<
-  [SendNotificationUseCaseRequest],
-  Promise<SendNotificationUseCaseResponse>
->;
+let sendNotificationSpy: MockInstance<SendNotificationUseCase['execute']>;
 
 describe('on question best answer chosen', () => {
   beforeEach(() => {

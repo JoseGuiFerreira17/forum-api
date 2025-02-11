@@ -1,7 +1,5 @@
 import { Optional } from '@/core/entities/types/optional';
-import { Entity } from '@/core/entities/entity';
 import { UniqueEntityId } from '@/core/entities/unique-entity-id';
-import { extend } from 'dayjs';
 import { Comment, CommentProps } from './comment';
 
 export interface AnswerCommentProps extends CommentProps {
