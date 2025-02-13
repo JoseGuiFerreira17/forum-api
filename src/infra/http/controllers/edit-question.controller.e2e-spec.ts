@@ -1,5 +1,6 @@
 import { AppModule } from '@/infra/app.module';
 import { DatabaseModule } from '@/infra/database/database.module';
+import { PrismaService } from '@/infra/database/prisma/prisma.service';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -7,8 +8,9 @@ import request from 'supertest';
 import { QuestionFactory } from 'test/factories/make-question';
 import { StudentFactory } from 'test/factories/make-student';
 
-describe('Fetch Recent Questions Controller (e2e)', () => {
+describe('Edit Question Controller (e2e)', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
   let studentFactory: StudentFactory;
   let questionFactory: QuestionFactory;
   let jwt: JwtService;
@@ -21,6 +23,7 @@ describe('Fetch Recent Questions Controller (e2e)', () => {
 
     app = moduleRef.createNestApplication();
 
+    prisma = moduleRef.get(PrismaService);
     studentFactory = moduleRef.get(StudentFactory);
     questionFactory = moduleRef.get(QuestionFactory);
     jwt = moduleRef.get(JwtService);
@@ -28,26 +31,29 @@ describe('Fetch Recent Questions Controller (e2e)', () => {
     await app.init();
   });
 
-  test('[GET] /questions', async () => {
+  test('[PUT] /questions', async () => {
     const user = await studentFactory.makePrismaStudent();
+
+    const question = await questionFactory.makePrismaQuestion({
+      authorId: user.id,
+    });
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    await Promise.all([
-      questionFactory.makePrismaQuestion({
-        authorId: user.id,
-      }),
-      questionFactory.makePrismaQuestion({
-        authorId: user.id,
-      }),
-    ]);
-
-    const response = await request(app.getHttpServer())
-      .get('/questions')
+    const responde = await request(app.getHttpServer())
+      .put(`/questions/${question.id.toString()}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send();
+      .send({
+        title: 'How to create a question?',
+        content: 'I want to know how to create a question.',
+      });
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body.questions).toHaveLength(2);
+    expect(responde.statusCode).toBe(204);
+
+    const updatedQuestion = await prisma.question.findFirst({
+      where: { id: question.id.toString() },
+    });
+
+    expect(updatedQuestion).toBeTruthy();
   });
 });

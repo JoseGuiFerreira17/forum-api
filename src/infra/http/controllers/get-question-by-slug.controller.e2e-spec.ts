@@ -1,3 +1,4 @@
+import { Slug } from '@/domain/forum/enterprise/entities/value-objects/slug';
 import { AppModule } from '@/infra/app.module';
 import { DatabaseModule } from '@/infra/database/database.module';
 import { INestApplication } from '@nestjs/common';
@@ -7,7 +8,7 @@ import request from 'supertest';
 import { QuestionFactory } from 'test/factories/make-question';
 import { StudentFactory } from 'test/factories/make-student';
 
-describe('Fetch Recent Questions Controller (e2e)', () => {
+describe('Get Question By Slug Controller (e2e)', () => {
   let app: INestApplication;
   let studentFactory: StudentFactory;
   let questionFactory: QuestionFactory;
@@ -28,26 +29,25 @@ describe('Fetch Recent Questions Controller (e2e)', () => {
     await app.init();
   });
 
-  test('[GET] /questions', async () => {
+  test('[GET] /questions/:slug', async () => {
     const user = await studentFactory.makePrismaStudent();
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    await Promise.all([
-      questionFactory.makePrismaQuestion({
-        authorId: user.id,
-      }),
-      questionFactory.makePrismaQuestion({
-        authorId: user.id,
-      }),
-    ]);
+    await questionFactory.makePrismaQuestion({
+      authorId: user.id,
+      title: 'Question 1',
+      slug: Slug.create('question-1'),
+    });
 
     const response = await request(app.getHttpServer())
-      .get('/questions')
+      .get('/questions/question-1')
       .set('Authorization', `Bearer ${accessToken}`)
       .send();
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.questions).toHaveLength(2);
+    expect(response.body).toEqual({
+      question: expect.objectContaining({ title: 'Question 1' }),
+    });
   });
 });
