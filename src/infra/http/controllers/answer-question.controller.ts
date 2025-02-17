@@ -1,4 +1,4 @@
-import { Body, Param } from '@nestjs/common';
+import { BadRequestException, Body, Param } from '@nestjs/common';
 import { Controller, HttpCode, Post } from '@nestjs/common';
 import { CurrentUser } from '@/infra/auth/current-user-decorator';
 import { UserPayload } from '@/infra/auth/jwt_strategy';
@@ -27,11 +27,15 @@ export class AnswerQuestionController {
   ) {
     const { content } = body;
 
-    await this.answerQuestion.execute({
+    const result = await this.answerQuestion.execute({
       content,
       questionId,
       authorId: user.sub,
       attachmentsIds: [],
     });
+
+    if (result.isLeft()) {
+      throw new BadRequestException();
+    }
   }
 }
