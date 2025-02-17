@@ -3,21 +3,21 @@ import { Controller, HttpCode } from '@nestjs/common';
 import { CurrentUser } from '@/infra/auth/current-user-decorator';
 import { UserPayload } from '@/infra/auth/jwt_strategy';
 
-import { DeleteQuestionUseCase } from '@/domain/forum/application/use-cases/delete-question';
+import { DeleteAnswerCommentUseCase } from '@/domain/forum/application/use-cases/delete-answer-comment';
 
-@Controller('/questions/:id')
-export class DeleteQuestionController {
-  constructor(private deleteQuestion: DeleteQuestionUseCase) {}
+@Controller('/answers/comments/:id')
+export class DeleteAnswerCommentController {
+  constructor(private deleteAnswerComment: DeleteAnswerCommentUseCase) {}
 
   @Delete()
   @HttpCode(204)
   async handle(
     @CurrentUser() user: UserPayload,
-    @Param('id') questionId: string,
+    @Param('id') answerCommentId: string,
   ) {
-    const result = await this.deleteQuestion.execute({
+    const result = await this.deleteAnswerComment.execute({
       authorId: user.sub,
-      questionId,
+      answerCommentId,
     });
 
     if (result.isLeft()) {

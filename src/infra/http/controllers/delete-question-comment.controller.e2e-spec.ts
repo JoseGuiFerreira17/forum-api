@@ -5,49 +5,61 @@ import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { QuestionFactory } from 'test/factories/make-question';
+import { QuestionCommentFactory } from 'test/factories/make-question-comment';
 import { StudentFactory } from 'test/factories/make-student';
 
-describe('Create Question Controller (e2e)', () => {
+describe('Delete Question Comment Controller (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let studentFactory: StudentFactory;
+  let questionFactory: QuestionFactory;
+  let questionCommentFactory: QuestionCommentFactory;
   let jwt: JwtService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
-      providers: [StudentFactory],
+      providers: [StudentFactory, QuestionFactory, QuestionCommentFactory],
     }).compile();
 
     app = moduleRef.createNestApplication();
 
     prisma = moduleRef.get(PrismaService);
     studentFactory = moduleRef.get(StudentFactory);
+    questionFactory = moduleRef.get(QuestionFactory);
+    questionCommentFactory = moduleRef.get(QuestionCommentFactory);
     jwt = moduleRef.get(JwtService);
 
     await app.init();
   });
 
-  test('[POST] /questions', async () => {
+  test('[DELETE] /questions/comments/:id', async () => {
     const user = await studentFactory.makePrismaStudent();
+
+    const question = await questionFactory.makePrismaQuestion({
+      authorId: user.id,
+    });
+
+    const questionComment =
+      await questionCommentFactory.makePrismaQuestionComment({
+        authorId: user.id,
+        questionId: question.id,
+      });
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
     const response = await request(app.getHttpServer())
-      .post('/questions')
+      .delete(`/questions/comments/${questionComment.id.toString()}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        title: 'How to create a question?',
-        content: 'I want to know how to create a question.',
-      });
+      .send();
 
-    const question = await prisma.question.findFirst({
-      where: {
-        title: 'How to create a question?',
-      },
+    expect(response.statusCode).toBe(204);
+
+    const deletedComment = await prisma.comment.findUnique({
+      where: { id: questionComment.id.toString() },
     });
 
-    expect(response.statusCode).toBe(201);
-    expect(question).toBeTruthy();
+    expect(deletedComment).toBeNull();
   });
 });

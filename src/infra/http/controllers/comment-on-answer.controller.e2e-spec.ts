@@ -5,49 +5,64 @@ import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { AnswerFactory } from 'test/factories/make-answer';
+import { QuestionFactory } from 'test/factories/make-question';
 import { StudentFactory } from 'test/factories/make-student';
 
-describe('Create Question Controller (e2e)', () => {
+describe('Comment On Answer Controller (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let studentFactory: StudentFactory;
+  let questionFactory: QuestionFactory;
+  let answerFactory: AnswerFactory;
   let jwt: JwtService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
-      providers: [StudentFactory],
+      providers: [StudentFactory, AnswerFactory, QuestionFactory],
     }).compile();
 
     app = moduleRef.createNestApplication();
 
     prisma = moduleRef.get(PrismaService);
     studentFactory = moduleRef.get(StudentFactory);
+    answerFactory = moduleRef.get(AnswerFactory);
+    questionFactory = moduleRef.get(QuestionFactory);
     jwt = moduleRef.get(JwtService);
 
     await app.init();
   });
 
-  test('[POST] /questions', async () => {
+  test('[POST] /answers/:answerId/comments', async () => {
     const user = await studentFactory.makePrismaStudent();
+
+    const question = await questionFactory.makePrismaQuestion({
+      authorId: user.id,
+    });
+
+    const answer = await answerFactory.makePrismaAnswer({
+      authorId: user.id,
+      questionId: question.id,
+    });
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
     const response = await request(app.getHttpServer())
-      .post('/questions')
+      .post(`/answers/${answer.id.toString()}/comments`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        title: 'How to create a question?',
-        content: 'I want to know how to create a question.',
+        content: 'This is the answer content.',
       });
 
-    const question = await prisma.question.findFirst({
-      where: {
-        title: 'How to create a question?',
-      },
-    });
+    console.log(response.body);
 
     expect(response.statusCode).toBe(201);
-    expect(question).toBeTruthy();
+
+    const commentOnDatabase = await prisma.comment.findFirst({
+      where: { content: 'This is the answer content.' },
+    });
+
+    expect(commentOnDatabase).toBeTruthy();
   });
 });

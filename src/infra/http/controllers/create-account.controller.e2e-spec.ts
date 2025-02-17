@@ -21,7 +21,7 @@ describe('Create Account Controller (e2e)', () => {
   });
 
   test('[POST] /accounts', async () => {
-    const responde = await request(app.getHttpServer()).post('/accounts').send({
+    const response = await request(app.getHttpServer()).post('/accounts').send({
       name: 'John Doe',
       email: 'johndoen@example.com',
       password: 'password123',
@@ -33,7 +33,7 @@ describe('Create Account Controller (e2e)', () => {
       },
     });
 
-    expect(responde.statusCode).toBe(201);
+    expect(response.statusCode).toBe(201);
     expect(user).toBeTruthy();
   });
 });
