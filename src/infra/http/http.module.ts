@@ -45,6 +45,7 @@ import { CommentOnAnswerUseCase } from '@/domain/forum/application/use-cases/com
 import { DeleteAnswerCommentUseCase } from '@/domain/forum/application/use-cases/delete-answer-comment';
 import { FetchQuestionCommentsUseCase } from '@/domain/forum/application/use-cases/fetch-question-comments';
 import { FetchAnswerCommentsUseCase } from '@/domain/forum/application/use-cases/fetch-answer-comments';
+import { UploadAttachmentsUseCase } from '@/domain/forum/application/use-cases/upload-attachments';
 
 @Module({
   imports: [DatabaseModule, CryptographyModule, StorageModule],
@@ -88,6 +89,7 @@ import { FetchAnswerCommentsUseCase } from '@/domain/forum/application/use-cases
     DeleteAnswerCommentUseCase,
     FetchQuestionCommentsUseCase,
     FetchAnswerCommentsUseCase,
+    UploadAttachmentsUseCase,
   ],
 })
 export class HttpModule {}
