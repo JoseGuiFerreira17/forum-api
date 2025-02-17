@@ -2,18 +2,20 @@ import { Either, left, right } from '@/core/either';
 import { QuestionComment } from '../../enterprise/entities/question-comment';
 import { QuestionCommentsRepository } from '../repositories/question-comments-repository';
 import { ResourceNotFoundError } from '@/core/errors/resource-not-found';
+import { Injectable } from '@nestjs/common';
 
-interface FetchQuetionCommentsUseCaseRequest {
+interface FetchQuestionCommentsUseCaseRequest {
   questionId: string;
   page: number;
 }
 
-type FetchQuetionCommentsUseCaseResponse = Either<
+type FetchQuestionCommentsUseCaseResponse = Either<
   ResourceNotFoundError,
   { questionComments: QuestionComment[] }
 >;
 
-export class FetchQuetionCommentsUseCase {
+@Injectable()
+export class FetchQuestionCommentsUseCase {
   constructor(
     private questionCommentsRespository: QuestionCommentsRepository,
   ) {}
@@ -21,7 +23,7 @@ export class FetchQuetionCommentsUseCase {
   async execute({
     questionId,
     page,
-  }: FetchQuetionCommentsUseCaseRequest): Promise<FetchQuetionCommentsUseCaseResponse> {
+  }: FetchQuestionCommentsUseCaseRequest): Promise<FetchQuestionCommentsUseCaseResponse> {
     const questionComments =
       await this.questionCommentsRespository.findManyByQuestionId(questionId, {
         page,
