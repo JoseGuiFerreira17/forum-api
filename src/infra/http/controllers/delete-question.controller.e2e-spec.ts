@@ -31,7 +31,7 @@ describe('Delete Question Controller (e2e)', () => {
     await app.init();
   });
 
-  test('[DELETE] /questions', async () => {
+  test('[DELETE] /questions/:id', async () => {
     const user = await studentFactory.makePrismaStudent();
 
     const question = await questionFactory.makePrismaQuestion({
@@ -40,15 +40,12 @@ describe('Delete Question Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    const responde = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .delete(`/questions/${question.id.toString()}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        title: 'How to create a question?',
-        content: 'I want to know how to create a question.',
-      });
+      .send();
 
-    expect(responde.statusCode).toBe(204);
+    expect(response.statusCode).toBe(204);
 
     const deletedQuestion = await prisma.question.findUnique({
       where: { id: question.id.toString() },

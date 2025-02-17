@@ -40,14 +40,16 @@ describe('Answer Question Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    const responde = await request(app.getHttpServer())
-      .put(`/questions/${question.id.toString()}/answers`)
+    const response = await request(app.getHttpServer())
+      .post(`/questions/${question.id.toString()}/answers`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         content: 'This is the answer content.',
       });
 
-    expect(responde.statusCode).toBe(204);
+    console.log(response.body);
+
+    expect(response.statusCode).toBe(201);
 
     const answerOnQuestion = await prisma.answer.findFirst({
       where: { content: 'This is the answer content.' },

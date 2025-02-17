@@ -40,7 +40,7 @@ describe('Edit Question Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    const responde = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .put(`/questions/${question.id.toString()}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
@@ -48,7 +48,7 @@ describe('Edit Question Controller (e2e)', () => {
         content: 'I want to know how to create a question.',
       });
 
-    expect(responde.statusCode).toBe(204);
+    expect(response.statusCode).toBe(204);
 
     const updatedQuestion = await prisma.question.findFirst({
       where: { id: question.id.toString() },

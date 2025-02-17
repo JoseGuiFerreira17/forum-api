@@ -48,14 +48,14 @@ describe('Edit Answer Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    const responde = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .put(`/answers/${answer.id.toString()}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         content: 'This is a new answer content.',
       });
 
-    expect(responde.statusCode).toBe(204);
+    expect(response.statusCode).toBe(204);
 
     const answerOnQuestion = await prisma.answer.findFirst({
       where: { content: 'This is a new answer content.' },

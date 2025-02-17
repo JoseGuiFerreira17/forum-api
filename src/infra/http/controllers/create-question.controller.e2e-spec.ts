@@ -33,7 +33,7 @@ describe('Create Question Controller (e2e)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
-    const responde = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .post('/questions')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
@@ -47,7 +47,7 @@ describe('Create Question Controller (e2e)', () => {
       },
     });
 
-    expect(responde.statusCode).toBe(201);
+    expect(response.statusCode).toBe(201);
     expect(question).toBeTruthy();
   });
 });
