@@ -8,6 +8,7 @@ import { EditAnswerUseCase } from '@/domain/forum/application/use-cases/edit-ans
 
 const editAnswerBodySchema = z.object({
   content: z.string().min(3),
+  attachments: z.array(z.string().uuid()).default([]),
 });
 
 type EditAnswerBodySchema = z.infer<typeof editAnswerBodySchema>;
@@ -25,12 +26,12 @@ export class EditAnswerController {
     @CurrentUser() user: UserPayload,
     @Param('id') answerId: string,
   ) {
-    const { content } = body;
+    const { content, attachments } = body;
 
     const result = await this.editAnswer.execute({
       content,
       authorId: user.sub,
-      attachmentsIds: [],
+      attachmentsIds: attachments,
       answerId,
     });
 
