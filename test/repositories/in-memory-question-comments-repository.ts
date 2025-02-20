@@ -4,7 +4,9 @@ import { QuestionComment } from '@/domain/forum/enterprise/entities/question-com
 import { InMemoryStudentsRepository } from './in-memory-students-repository';
 import { CommentWithAuthor } from '@/domain/forum/enterprise/entities/value-objects/comment-with-author';
 
-export class InMemoryQuestionCommentsRepository implements QuestionCommentsRepository {
+export class InMemoryQuestionCommentsRepository
+  implements QuestionCommentsRepository
+{
   public items: QuestionComment[] = [];
 
   constructor(private studentsRepository: InMemoryStudentsRepository) {}
